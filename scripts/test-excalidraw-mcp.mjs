@@ -19,7 +19,7 @@
  *
  * Environment:
  *   HEYJAMIE_OPENROUTER_API_KEY or VITE_HEYJAMIE_OPENROUTER_API_KEY  (required for "agent" mode)
- *   HEYJAMIE_LLM_MODEL or VITE_HEYJAMIE_LLM_MODEL                   (optional, default: google/gemini-2.0-flash-001)
+ *   HEYJAMIE_LLM_MODEL or VITE_HEYJAMIE_LLM_MODEL                   (optional, default: anthropic/claude-sonnet-4.5)
  *   EXCALIDRAW_MCP_URL                                                (optional, override server URL)
  */
 
@@ -518,7 +518,7 @@ async function testAgent() {
   const modelName =
     process.env.HEYJAMIE_LLM_MODEL ||
     process.env.VITE_HEYJAMIE_LLM_MODEL ||
-    "google/gemini-2.0-flash-001";
+    "anthropic/claude-sonnet-4.5";
 
   console.log(`Model: ${modelName}`);
   console.log(`API key source: ${process.env.HEYJAMIE_OPENROUTER_API_KEY ? "HEYJAMIE_OPENROUTER_API_KEY" : "VITE_HEYJAMIE_OPENROUTER_API_KEY"}`);
@@ -861,7 +861,7 @@ Commands:
 Environment:
   EXCALIDRAW_MCP_URL                  Override the Excalidraw MCP server URL
   HEYJAMIE_OPENROUTER_API_KEY        API key for agent test
-  HEYJAMIE_LLM_MODEL                 Model for agent test (default: google/gemini-2.0-flash-001)
+  HEYJAMIE_LLM_MODEL                 Model for agent test (default: anthropic/claude-sonnet-4.5)
 `);
     return;
   }

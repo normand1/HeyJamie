@@ -17,7 +17,7 @@
 <h3 align="center">HeyJamie</h3>
 
   <p align="center">
-    A voice-driven research companion that transcribes speech, detects topics, and automates browser research and diagram creation.
+    A voice-driven podcast production companion that transcribes speech, detects topics, and automates browser research and diagram creation.
     <br />
     <a href="https://github.com/normand1/HeyJamie/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     &middot;
@@ -206,7 +206,7 @@ Optional overrides:
 
 | Variable | Default | Description |
 |---|---|---|
-| `HEYJAMIE_LLM_MODEL` / `VITE_HEYJAMIE_LLM_MODEL` | `google/gemini-2.5-flash` | LLM model |
+| `HEYJAMIE_LLM_MODEL` / `VITE_HEYJAMIE_LLM_MODEL` | `anthropic/claude-sonnet-4.5` | LLM model |
 | `HEYJAMIE_LLM_TIMEOUT_MS` | 45000 | General LLM timeout |
 | `HEYJAMIE_INTENT_TIMEOUT_MS` | 90000 | Intent planner timeout |
 | `HEYJAMIE_EXCALIDRAW_TIMEOUT_MS` | 120000 | Excalidraw agent timeout |

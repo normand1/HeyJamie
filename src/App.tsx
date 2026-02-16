@@ -14,6 +14,7 @@ import {
   Sparkles,
   RefreshCw,
   SlidersHorizontal,
+  PenTool,
 } from "lucide-react";
 
 import {
@@ -87,6 +88,13 @@ type WhisperStatus = {
   modelFound: boolean;
   cliPath?: string | null;
   modelPath?: string | null;
+};
+
+type ExcalidrawStatus = {
+  dirFound: boolean;
+  indexJsFound: boolean;
+  serverJsFound: boolean;
+  installPath?: string | null;
 };
 
 type McpConfigResponse = {
@@ -1519,6 +1527,11 @@ export function App() {
     "This can take a few minutes and will download the base model."
   );
   const [showSetupCard, setShowSetupCard] = React.useState(false);
+  const [_excalidrawReady, setExcalidrawReady] = React.useState(false);
+  const [excalidrawSetupStatus, setExcalidrawSetupStatus] = React.useState(
+    "This will clone and build mcp_excalidraw locally."
+  );
+  const [showExcalidrawSetupCard, setShowExcalidrawSetupCard] = React.useState(false);
   const [isListening, setIsListening] = React.useState(false);
   const [speechTag, setSpeechTag] = React.useState("Transcription: unavailable");
   const [speechModelTag, setSpeechModelTag] = React.useState("Model: unknown");
@@ -4293,6 +4306,39 @@ export function App() {
     }
   }, [log, refreshWhisperStatus, setStatusState]);
 
+  const refreshExcalidrawStatus = React.useCallback(async () => {
+    try {
+      const statusResponse = await invoke<ExcalidrawStatus>("check_excalidraw");
+      const ready = Boolean(
+        statusResponse.dirFound &&
+          statusResponse.indexJsFound &&
+          statusResponse.serverJsFound
+      );
+      setExcalidrawReady(ready);
+      setShowExcalidrawSetupCard(!ready);
+    } catch (error) {
+      setExcalidrawReady(false);
+      setShowExcalidrawSetupCard(true);
+      log("Failed to check excalidraw status", error);
+    }
+  }, [log]);
+
+  const runExcalidrawSetup = React.useCallback(async () => {
+    setShowExcalidrawSetupCard(true);
+    setExcalidrawSetupStatus("Installing mcp_excalidraw... this may take a few minutes.");
+
+    try {
+      const output = await invoke<string>("setup_excalidraw");
+      log("mcp_excalidraw setup output", output);
+      setExcalidrawSetupStatus("Install complete. Checking status...");
+    } catch (error) {
+      log("mcp_excalidraw setup failed", error);
+      setExcalidrawSetupStatus(`Install failed: ${String(error)}`);
+    } finally {
+      await refreshExcalidrawStatus();
+    }
+  }, [log, refreshExcalidrawStatus]);
+
   const syncDevModeState = React.useCallback(() => {
     const settings = loadOpenRouterSettings();
     setDevModeEnabled(settings.developerMode);
@@ -4416,6 +4462,7 @@ export function App() {
     updateLlmTag();
     updateSpeechTag(whisperReady);
     void refreshWhisperStatus();
+    void refreshExcalidrawStatus();
     syncDevModeState();
     hydrateQuickSettingsFromStorage();
     void loadQuickMcpConfig();
@@ -4434,6 +4481,7 @@ export function App() {
   }, [
     hydrateQuickSettingsFromStorage,
     loadQuickMcpConfig,
+    refreshExcalidrawStatus,
     refreshWhisperStatus,
     syncDevModeState,
     updateLlmTag,
@@ -4835,6 +4883,26 @@ export function App() {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">{setupStatus}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {showExcalidrawSetupCard && (
+          <Card className="flex-none border-dashed border-primary/40 bg-muted/30">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base">Excalidraw Setup</CardTitle>
+                <CardDescription>
+                  mcp_excalidraw is not installed yet. Install it to enable diagram creation.
+                </CardDescription>
+              </div>
+              <Button onClick={runExcalidrawSetup} size="sm" className="gap-2">
+                <PenTool className="h-3.5 w-3.5" />
+                Install
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">{excalidrawSetupStatus}</p>
             </CardContent>
           </Card>
         )}

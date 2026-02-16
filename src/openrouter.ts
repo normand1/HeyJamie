@@ -12,7 +12,7 @@ export type OpenRouterSettings = {
   narrativePrompt: string;
 };
 
-const DEFAULT_OPENROUTER_MODEL_FALLBACK = "upstage/solar-pro-3:free";
+const DEFAULT_OPENROUTER_MODEL_FALLBACK = "anthropic/claude-sonnet-4.5";
 const ENV_OPENROUTER_API_KEY = (
   import.meta.env.VITE_HEYJAMIE_OPENROUTER_API_KEY ?? ""
 ).trim();

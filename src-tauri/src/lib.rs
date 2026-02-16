@@ -30,6 +30,15 @@ struct WhisperStatus {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
+struct ExcalidrawStatus {
+    dir_found: bool,
+    index_js_found: bool,
+    server_js_found: bool,
+    install_path: Option<String>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct McpConfigResponse {
     path: String,
     content: String,
@@ -259,6 +268,65 @@ fn check_whisper() -> WhisperStatus {
         cli_path: cli_path.map(|path| path.display().to_string()),
         model_path: model_path.map(|path| path.display().to_string()),
     }
+}
+
+#[tauri::command]
+fn check_excalidraw(app: tauri::AppHandle) -> ExcalidrawStatus {
+    let install_path = find_excalidraw_install_path(&app);
+    let dir_found = install_path.is_dir();
+    let index_js_found = install_path.join("dist/index.js").exists();
+    let server_js_found = install_path.join("dist/server.js").exists();
+
+    ExcalidrawStatus {
+        dir_found,
+        index_js_found,
+        server_js_found,
+        install_path: Some(install_path.display().to_string()),
+    }
+}
+
+#[tauri::command]
+fn setup_excalidraw() -> Result<String, String> {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let root_dir = manifest_dir
+        .parent()
+        .map(PathBuf::from)
+        .ok_or_else(|| "failed to resolve repo root".to_string())?;
+    let script_path = root_dir.join("scripts/setup-excalidraw.sh");
+
+    if !script_path.exists() {
+        return Err("setup-excalidraw.sh not found in scripts/".to_string());
+    }
+
+    log_line(&format!(
+        "Running excalidraw setup script: {}",
+        script_path.display()
+    ));
+
+    let output = Command::new(&script_path)
+        .current_dir(&root_dir)
+        .output()
+        .map_err(|err| format!("failed to run setup script: {}", err))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    log_line(&format!("setup-excalidraw stdout bytes: {}", stdout.len()));
+    if !stderr.trim().is_empty() {
+        log_line(&format!(
+            "setup-excalidraw stderr (truncated): {}",
+            truncate_for_log(&stderr, 300)
+        ));
+    }
+
+    if !output.status.success() {
+        return Err(format!(
+            "setup-excalidraw failed: {}",
+            truncate_for_log(&stderr, 500)
+        ));
+    }
+
+    Ok(format!("{}\n{}", stdout, stderr))
 }
 
 #[tauri::command]
@@ -1079,6 +1147,44 @@ fn find_whisper_model() -> Option<PathBuf> {
     None
 }
 
+fn find_excalidraw_install_path(app: &tauri::AppHandle) -> PathBuf {
+    // 1. Env var override
+    if let Ok(path) = env::var("HEYJAMIE_EXCALIDRAW_PATH") {
+        let trimmed = path.trim();
+        if !trimmed.is_empty() {
+            return PathBuf::from(trimmed);
+        }
+    }
+
+    // 2. Read MCP config excalidraw.cwd field
+    if let Ok(config_path) = mcp_config_path(app) {
+        if config_path.exists() {
+            if let Ok(content) = fs::read_to_string(&config_path) {
+                if let Ok(config) = serde_json::from_str::<JsonValue>(&content) {
+                    if let Some(cwd) = config
+                        .get("mcpServers")
+                        .and_then(|s| s.get("excalidraw"))
+                        .and_then(|e| e.get("cwd"))
+                        .and_then(|v| v.as_str())
+                    {
+                        if cwd.starts_with("~/") {
+                            if let Some(home) = dirs::home_dir() {
+                                return home.join(&cwd[2..]);
+                            }
+                        }
+                        return PathBuf::from(cwd);
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. Fallback to ~/mcp_excalidraw
+    dirs::home_dir()
+        .map(|h| h.join("mcp_excalidraw"))
+        .unwrap_or_else(|| PathBuf::from("mcp_excalidraw"))
+}
+
 fn parse_env_float(name: &str, min: f32, max: f32) -> Option<f32> {
     let value = env::var(name).ok()?;
     let parsed = value.trim().parse::<f32>().ok()?;
@@ -1471,6 +1577,8 @@ pub fn run() {
             transcribe_audio,
             check_whisper,
             setup_whisper,
+            check_excalidraw,
+            setup_excalidraw,
             log_frontend,
             browser_control,
             get_mcp_config,
