@@ -76,6 +76,8 @@
 
 HeyJamie is a desktop app that listens to your microphone, transcribes speech locally with whisper.cpp, detects topic shifts, and automatically launches browser research deep dives or creates Excalidraw diagrams — all driven by LLM-powered automation.
 
+Note: Currently MacOS only (adding Linux and Windows support soon!)
+
 **How It Works:**
 
 1. **Mic capture** — Records audio segments (8s windows, 2s minimum).
