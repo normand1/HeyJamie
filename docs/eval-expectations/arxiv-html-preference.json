@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "transcriptId": "arxiv-html-preference",
+  "description": "Validates BrowserOS HTML-over-PDF preference: navigate to arXiv cs.AI recent papers list, then open the second paper (arXiv:2602.06023) via its HTML link instead of PDF",
+  "expectations": [
+    {
+      "id": "navigate-to-arxiv-list-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "arxiv"
+      }
+    },
+    {
+      "id": "navigate-to-arxiv-list-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 0,
+        "ok": true,
+        "urlContains": "arxiv.org"
+      }
+    },
+    {
+      "id": "open-second-paper-html-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "second"
+      }
+    },
+    {
+      "id": "open-second-paper-html-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 1,
+        "ok": true,
+        "endUrlContains": "arxiv.org/html/2602.06023"
+      }
+    }
+  ],
+  "summary": {
+    "runComplete": {
+      "status": "success",
+      "browserosRunsStarted": { "min": 2, "max": 2 },
+      "browserosRunsSucceeded": { "min": 2, "max": 2 },
+      "browserosRunsFailed": { "max": 0 }
+    }
+  }
+}

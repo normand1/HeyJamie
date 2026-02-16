@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "transcriptId": "direct-command-click-link",
+  "description": "Validates that two sequential Hey Jamie direct commands work: first opens Google search results, second clicks the first link. The browser URL should change twice.",
+  "expectations": [
+    {
+      "id": "search-direct-command-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "puppies",
+        "urlContains": "google.com"
+      },
+      "timing": { "afterSec": 3, "beforeSec": 30 }
+    },
+    {
+      "id": "search-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 0,
+        "ok": true,
+        "endUrlContains": "google.com"
+      },
+      "timing": { "afterSec": 10, "beforeSec": 80 }
+    },
+    {
+      "id": "click-link-direct-command-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "click"
+      },
+      "timing": { "afterSec": 60, "beforeSec": 120 }
+    },
+    {
+      "id": "click-link-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "ok": true
+      },
+      "timing": { "afterSec": 65, "beforeSec": 180 }
+    }
+  ],
+  "summary": {
+    "runComplete": {
+      "status": "success",
+      "browserosRunsStarted": { "min": 2, "max": 4 },
+      "browserosRunsSucceeded": { "min": 2, "max": 4 },
+      "browserosRunsFailed": { "max": 1 }
+    }
+  }
+}

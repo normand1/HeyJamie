@@ -1,0 +1,3 @@
+Hey Jamie, go to the arXiv recent papers list for cs.AI at arxiv.org/list/cs.AI/recent.
+[[sleep:60000]]
+Hey Jamie, open the second paper in the list, arXiv 2602.06023, and make sure to use the HTML link not the PDF.

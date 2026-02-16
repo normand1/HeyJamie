@@ -1,0 +1,22 @@
+{
+  "project": "HeyJamie",
+  "branchName": "ralph/example-feature",
+  "description": "Example feature implementation",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Example story title",
+      "description": "As a user, I want...",
+      "acceptanceCriteria": [
+        "Criterion 1",
+        "Criterion 2",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "",
+      "testScenario": null,
+      "minScorePercent": 80
+    }
+  ]
+}

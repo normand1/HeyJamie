@@ -1,0 +1,4 @@
+Let's talk about system architecture.
+I'm designing a microservices system with an API gateway that routes requests to three backend services: a user service, an order service, and a payment service. Each service has its own database.
+[[sleep:60000]]
+Now let's discuss something else entirely. Find me the latest news about space exploration and Mars missions.

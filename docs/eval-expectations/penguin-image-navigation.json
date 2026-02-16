@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "transcriptId": "penguin-image-navigation",
+  "description": "Validates BrowserOS navigation: load a Google search page for penguins, switch to the Images tab, and select the third penguin image",
+  "expectations": [
+    {
+      "id": "open-penguin-search-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "penguin",
+        "urlContains": "google.com/search"
+      }
+    },
+    {
+      "id": "open-penguin-search-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 0,
+        "ok": true,
+        "endUrlContains": "google.com/search"
+      }
+    },
+    {
+      "id": "switch-to-images-tab-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "images tab"
+      }
+    },
+    {
+      "id": "switch-to-images-tab-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 1,
+        "ok": true
+      }
+    },
+    {
+      "id": "select-third-image-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "third"
+      }
+    },
+    {
+      "id": "select-third-image-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 2,
+        "ok": true
+      }
+    }
+  ],
+  "summary": {
+    "runComplete": {
+      "status": "success",
+      "browserosRunsStarted": { "min": 3, "max": 3 },
+      "browserosRunsSucceeded": { "min": 3, "max": 3 },
+      "browserosRunsFailed": { "max": 0 }
+    }
+  }
+}

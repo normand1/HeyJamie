@@ -1,0 +1,10 @@
+Let's
+Find cute cat pictures for the show and open the best image results.
+[[sleep:20000]]
+Hey Jamie, focus on fluffy kittens and sleepy orange tabbies in the first batch.
+[[sleep:20000]]
+Now switch topics and find cute dog pictures instead of cats.
+[[sleep:20000]]
+Prioritize corgi puppies and golden retriever photos in this new search.
+[[sleep:20000]]
+Switch topics again and find funny parrot videos for the next segment.

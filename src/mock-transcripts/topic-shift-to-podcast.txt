@@ -1,0 +1,8 @@
+Let's start with a deep dive into the Hey Jamie application architecture.
+First, we start by reading microphone input, process that via the whisper model, and then we pass that to the planning service.
+The planning service determines whether we are talking about web searches or whether it would be better to draw an excalidraw diagram.
+[[sleep:30000]]
+And I think this would be a really great application for a podcast.
+Some of my favorite podcasts are the Joe Rogan Experience or Latent Space.
+I think these would be very helpful for podcast producers to determine what is being talked about.
+So we could take a look at some of those podcasts right now to give you an idea of what they're like.

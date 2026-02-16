@@ -1,0 +1,3 @@
+Hey Jamie, go to the Google search results page for cute puppies.
+[[sleep:60000]]
+Hey Jamie, click the first link on this page.

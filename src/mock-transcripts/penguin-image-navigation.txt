@@ -1,0 +1,5 @@
+Hey Jamie, go to the Google search results page for penguins.
+[[sleep:60000]]
+Hey Jamie, now click on the Images tab on this page to see penguin pictures.
+[[sleep:60000]]
+Hey Jamie, select the third penguin image in the results.

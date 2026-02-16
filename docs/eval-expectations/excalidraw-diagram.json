@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "transcriptId": "excalidraw-diagram",
+  "description": "Validates that the intent planner routes a system architecture topic to Excalidraw diagram creation, and a follow-up news topic to BrowserOS web search",
+  "expectations": [
+    {
+      "id": "architecture-excalidraw-request",
+      "event": "excalidraw-request",
+      "match": {
+        "triggerReason": "topic-shift",
+        "queryContains": "microservice",
+        "utteranceIndexRange": [1, 3]
+      },
+      "timing": { "afterSec": 10, "beforeSec": 60 }
+    },
+    {
+      "id": "architecture-excalidraw-response-ok",
+      "event": "excalidraw-response",
+      "match": {
+        "ok": true,
+        "queryContains": "microservice"
+      },
+      "timing": { "afterSec": 20, "beforeSec": 120 }
+    },
+    {
+      "id": "architecture-excalidraw-response-has-url",
+      "event": "excalidraw-response",
+      "match": {
+        "diagramUrlContains": "localhost"
+      },
+      "timing": { "afterSec": 20, "beforeSec": 120 }
+    },
+    {
+      "id": "space-news-browseros-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "topic-shift",
+        "queryContains": "space",
+        "utteranceIndexRange": [3, 4]
+      },
+      "timing": { "afterSec": 70, "beforeSec": 180 }
+    },
+    {
+      "id": "space-news-browseros-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "ok": true,
+        "queryContains": "space"
+      },
+      "timing": { "afterSec": 80, "beforeSec": 200 }
+    }
+  ],
+  "summary": {
+    "runComplete": {
+      "status": "success",
+      "excalidrawRunsStarted": { "min": 1, "max": 2 },
+      "excalidrawRunsSucceeded": { "min": 1, "max": 2 },
+      "excalidrawRunsFailed": { "max": 0 },
+      "browserosRunsStarted": { "min": 1, "max": 2 },
+      "browserosRunsSucceeded": { "min": 1, "max": 2 },
+      "browserosRunsFailed": { "max": 0 }
+    }
+  }
+}

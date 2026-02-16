@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "description": "Example expectations file for validating HeyJamie integration test logs.",
+  "sourceLog": "heyjamie-integration-test.log",
+  "runLabel": "mock:topic-changes:integration",
+  "expected": {
+    "runStart": {
+      "timestampRange": {
+        "start": "2026-02-15T18:42:00.000Z",
+        "end": "2026-02-15T18:42:05.000Z"
+      },
+      "playableLineCount": 18,
+      "markerCount": 2
+    },
+    "browserosRuns": [
+      {
+        "browserosRunIndex": 0,
+        "request": {
+          "timestampRange": {
+            "start": "2026-02-15T18:42:12.000Z",
+            "end": "2026-02-15T18:42:18.000Z"
+          },
+          "triggerUtteranceIndex": 5,
+          "query": "renewable energy tax credit deadlines",
+          "startUrl": "https://www.google.com/search?q=renewable+energy+tax+credit+deadlines"
+        },
+        "response": {
+          "timestampRange": {
+            "start": "2026-02-15T18:42:18.000Z",
+            "end": "2026-02-15T18:42:40.000Z"
+          },
+          "ok": true,
+          "endUrl": "https://www.google.com/search?q=renewable+energy+tax+credit+deadlines",
+          "actionsContains": [
+            "1. open | url=\"https://www.google.com/search?q=renewable+energy+tax+credit+deadlines\"",
+            "2. scan | detail=\"Collect key deadline dates from results\""
+          ]
+        }
+      },
+      {
+        "browserosRunIndex": 1,
+        "request": {
+          "timestampRange": {
+            "start": "2026-02-15T18:42:41.000Z",
+            "end": "2026-02-15T18:42:49.000Z"
+          },
+          "triggerUtteranceIndex": 9,
+          "query": "battery storage incentive program list",
+          "startUrl": "https://www.google.com/search?q=battery+storage+incentive+program+list"
+        },
+        "response": {
+          "timestampRange": {
+            "start": "2026-02-15T18:42:49.000Z",
+            "end": "2026-02-15T18:43:15.000Z"
+          },
+          "ok": true,
+          "endUrl": "https://www.google.com/search?q=battery+storage+incentive+program+list",
+          "actionsContains": [
+            "1. open | url=\"https://www.google.com/search?q=battery+storage+incentive+program+list\"",
+            "3. capture | detail=\"List key programs and eligibility notes\""
+          ]
+        }
+      },
+      {
+        "browserosRunIndex": 2,
+        "request": {
+          "timestampRange": {
+            "start": "2026-02-15T18:43:20.000Z",
+            "end": "2026-02-15T18:43:28.000Z"
+          },
+          "triggerUtteranceIndex": 13,
+          "query": "utility rebates for heat pumps",
+          "startUrl": "https://www.google.com/search?q=utility+rebates+for+heat+pumps"
+        },
+        "response": {
+          "timestampRange": {
+            "start": "2026-02-15T18:43:28.000Z",
+            "end": "2026-02-15T18:43:55.000Z"
+          },
+          "ok": true,
+          "endUrl": "https://www.google.com/search?q=utility+rebates+for+heat+pumps",
+          "actionsContains": [
+            "1. open | url=\"https://www.google.com/search?q=utility+rebates+for+heat+pumps\"",
+            "2. extract | detail=\"Summarize rebates by utility or state\""
+          ]
+        }
+      }
+    ],
+    "runComplete": {
+      "timestampRange": {
+        "start": "2026-02-15T18:44:00.000Z",
+        "end": "2026-02-15T18:44:20.000Z"
+      },
+      "status": "success",
+      "browserosRunsStarted": 3,
+      "browserosRunsSucceeded": 3,
+      "browserosRunsFailed": 0
+    }
+  }
+}

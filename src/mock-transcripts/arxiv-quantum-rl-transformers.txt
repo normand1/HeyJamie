@@ -1,0 +1,3 @@
+Hey Jamie, go to arxiv.org/list/cs.AI/recent to see the latest AI papers.
+[[sleep:60000]]
+Hey Jamie open the paper with the title: Quantum Reinforcement Learning with Transformers

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "transcriptId": "audio-pipeline-diagram",
+  "description": "Validates that a complex multi-section audio pipeline transcript triggers Excalidraw diagram creation with a single successful run",
+  "expectations": [
+    {
+      "id": "pipeline-excalidraw-request",
+      "event": "excalidraw-request",
+      "match": {
+        "triggerReason": "topic-shift",
+        "excalidrawPromptContains": "audio pipeline"
+      },
+      "timing": { "afterSec": 5, "beforeSec": 60 }
+    },
+    {
+      "id": "pipeline-excalidraw-response-ok",
+      "event": "excalidraw-response",
+      "match": {
+        "ok": true
+      },
+      "timing": { "afterSec": 20, "beforeSec": 180 }
+    },
+    {
+      "id": "pipeline-excalidraw-response-has-url",
+      "event": "excalidraw-response",
+      "match": {
+        "diagramUrlContains": "localhost"
+      },
+      "timing": { "afterSec": 20, "beforeSec": 180 }
+    }
+  ],
+  "summary": {
+    "runComplete": {
+      "status": "success",
+      "excalidrawRunsStarted": { "min": 1, "max": 1 },
+      "excalidrawRunsSucceeded": { "min": 1, "max": 1 },
+      "excalidrawRunsFailed": { "max": 0 }
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "transcriptId": "topic-changes",
+  "description": "Validates BrowserOS actions for the topic-changes mock transcript covering cat, dog, and parrot topics",
+  "expectations": [
+    {
+      "id": "cat-topic-shift-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "topic-shift",
+        "queryContains": "cat",
+        "startUrlContains": "google.com/search",
+        "suggestionType": "Image",
+        "utteranceIndexRange": [1, 3]
+      },
+      "timing": { "afterSec": 15, "beforeSec": 50 }
+    },
+    {
+      "id": "cat-topic-shift-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 0,
+        "ok": true,
+        "queryContains": "cat"
+      },
+      "timing": { "afterSec": 20, "beforeSec": 60 }
+    },
+    {
+      "id": "kittens-direct-command-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "direct-command",
+        "directCommandContains": "fluffy kittens",
+        "utteranceIndexRange": [3, 4]
+      },
+      "timing": { "afterSec": 35, "beforeSec": 70 }
+    },
+    {
+      "id": "kittens-direct-command-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 1,
+        "ok": true,
+        "triggerReason": "direct-command"
+      },
+      "timing": { "afterSec": 40, "beforeSec": 80 }
+    },
+    {
+      "id": "dog-topic-shift-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "topic-shift",
+        "queryContains": "dog",
+        "startUrlContains": "google.com/search",
+        "utteranceIndexRange": [4, 5]
+      },
+      "timing": { "afterSec": 55, "beforeSec": 90 }
+    },
+    {
+      "id": "dog-topic-shift-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 2,
+        "ok": true,
+        "queryContains": "dog"
+      },
+      "timing": { "afterSec": 60, "beforeSec": 100 }
+    },
+    {
+      "id": "corgi-topic-shift-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "topic-shift",
+        "queryContains": "corgi",
+        "utteranceIndexRange": [5, 6]
+      },
+      "timing": { "afterSec": 75, "beforeSec": 120 }
+    },
+    {
+      "id": "corgi-topic-shift-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 3,
+        "ok": true,
+        "queryContains": "corgi"
+      },
+      "timing": { "afterSec": 80, "beforeSec": 130 }
+    },
+    {
+      "id": "parrot-topic-shift-request",
+      "event": "browseros-request",
+      "match": {
+        "triggerReason": "topic-shift",
+        "queryContains": "parrot",
+        "suggestionType": "Video",
+        "startUrlContains": "youtube.com",
+        "utteranceIndexRange": [6, 6]
+      },
+      "timing": { "afterSec": 90, "beforeSec": 140 }
+    },
+    {
+      "id": "parrot-topic-shift-response-ok",
+      "event": "browseros-response",
+      "match": {
+        "browserosRunIndex": 4,
+        "ok": true,
+        "queryContains": "parrot"
+      },
+      "timing": { "afterSec": 95, "beforeSec": 150 }
+    }
+  ],
+  "summary": {
+    "runComplete": {
+      "status": "success",
+      "browserosRunsStarted": { "min": 4, "max": 6 },
+      "browserosRunsSucceeded": { "min": 4, "max": 6 },
+      "browserosRunsFailed": { "max": 0 }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+I want to create a data flow diagram of HeyJamie's audio pipeline architecture.
+Let me walk through the whole system from microphone to browser automation.
+So the first section is Audio Capture. The mic stream comes in through getUserMedia at the native sample rate, usually 48kHz.
+That feeds into an AudioContext with a ScriptProcessorNode using a 4096 sample buffer size.
+The processor callback pushes Float32Array chunks into bufferChunksRef and increments bufferLengthRef.
+There's also an AnalyserNode with fftSize 512 for the RMS meter display.
+[[sleep:5000]]
+Next section is Audio Processing. When bufferLengthRef hits 8 seconds worth of samples, flushBuffer fires.
+It calls mergeBuffers to combine the chunks, then calculateRms to check energy levels.
+If RMS is above 0.0025 it goes to queueSegment, otherwise the segment gets dropped as low energy.
+Actually wait, I forgot a step. queueSegment calls downsampleBuffer to go from 48kHz down to 16kHz first.
+Then it calls encodeWav to produce the WAV binary and pushes that into pendingQueueRef.
+[[sleep:4000]]
+OK third section is Transcription. The drainQueue function pops segments off pendingQueueRef one at a time.
+It base64 encodes the WAV bytes and invokes the Tauri command transcribe_audio.
+On the backend that writes a temp WAV file and spawns whisper-cli with ggml-base.en.bin as the model.
+No scratch that, the model path is configurable but defaults to ggml-base.en.bin in the whisper_cpp models directory.
+Whisper outputs timestamped text which gets cleaned up by extract_transcript to strip markers and hallucinations.
+[[sleep:4000]]
+Fourth section is Transcript Handling. The cleaned text comes back to handleTranscriptChunk in App.tsx.
+That appends to the transcript state and triggers the evaluation delay timer with a debounce of 300ms.
+Actually the debounce default used to be 1200ms but we reduced it to 300ms for responsiveness.
+[[sleep:3000]]
+Fifth section is Intent Detection. When the debounce fires it calls scheduleBrowserOSDeepDive.
+That invokes the LLM agent via runBrowserOsIntentPlanner which calls OpenRouter.
+The planner returns an actionType of either browser for web research or excalidraw for diagram creation.
+There's also a fast-path optimization where simple topic shifts skip the planner entirely and go straight to browser search.
+[[sleep:3000]]
+Last section is Planning and Action Routing. Based on actionType, the system either launches Chrome DevTools MCP for browser automation or kicks off the Excalidraw MCP agent.
+For browser mode it uses navigate_page, take_snapshot, click and other Chrome DevTools tools. For excalidraw mode it uses create_view and export_to_excalidraw to generate a shareable diagram URL.
