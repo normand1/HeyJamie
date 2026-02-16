@@ -13,7 +13,6 @@ import {
   ChevronRight,
   Sparkles,
   RefreshCw,
-  SlidersHorizontal,
   PenTool,
 } from "lucide-react";
 
@@ -22,20 +21,14 @@ import {
   DEFAULT_TOPIC_SHIFT_SENSITIVITY,
   hasOpenRouterKey,
   loadOpenRouterSettings,
-  saveOpenRouterSettings,
-  type OpenRouterSettings,
 } from "./openrouter";
 import {
   EVALUATION_DELAY_LEVELS,
   TOPIC_SHIFT_SENSITIVITY_LEVELS,
-  describeEvaluationDelay,
-  describeTopicShiftSensitivity,
 } from "./browserAutomationOptions";
 import { getPersonaById, NO_PERSONA_ID, PERSONAS } from "./personas";
 import {
   parseMcpConfig,
-  setServerEnabled,
-  stringifyMcpConfig,
   summarizeMcpServers,
   type McpServerSummary,
 } from "./mcpConfig";
@@ -54,7 +47,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
-import { Checkbox } from "./components/ui/checkbox";
 import { cn } from "./lib/utils";
 
 type SuggestionType = "Search" | "Image" | "Video" | "News";
@@ -1551,7 +1543,6 @@ export function App() {
   const [devModeEnabled, setDevModeEnabled] = React.useState(false);
   const [devTranscriptAvailable, setDevTranscriptAvailable] = React.useState(false);
   const [devTranscriptName, setDevTranscriptName] = React.useState("");
-  const [quickSettingsOpen, setQuickSettingsOpen] = React.useState(false);
   const [quickTopicShiftSensitivity, setQuickTopicShiftSensitivity] = React.useState(
     DEFAULT_TOPIC_SHIFT_SENSITIVITY
   );
@@ -1559,17 +1550,13 @@ export function App() {
     DEFAULT_EVALUATION_DELAY_MS
   );
   const [quickPersona, setQuickPersona] = React.useState(NO_PERSONA_ID);
-  const [quickSettingsStatus, setQuickSettingsStatus] = React.useState("");
-  const [quickMcpConfigRaw, setQuickMcpConfigRaw] = React.useState("");
-  const [quickMcpConfig, setQuickMcpConfig] = React.useState<Record<string, unknown> | null>(
+  const [_quickMcpConfigRaw, setQuickMcpConfigRaw] = React.useState("");
+  const [_quickMcpConfig, setQuickMcpConfig] = React.useState<Record<string, unknown> | null>(
     null
   );
   const [quickMcpServers, setQuickMcpServers] = React.useState<McpServerSummary[]>([]);
   const [quickMcpLoading, setQuickMcpLoading] = React.useState(false);
-  const [quickMcpSavingServer, setQuickMcpSavingServer] = React.useState<string | null>(
-    null
-  );
-  const [quickMcpStatus, setQuickMcpStatus] = React.useState("");
+  const [_quickMcpStatus, setQuickMcpStatus] = React.useState("");
   const [quickMcpError, setQuickMcpError] = React.useState("");
 
   const meterRef = React.useRef<HTMLSpanElement | null>(null);
@@ -1635,8 +1622,6 @@ export function App() {
   const devPlaybackLinesRef = React.useRef<string[]>([]);
   const devPlaybackNextLineRef = React.useRef(0);
   const devPlaybackDelayMsRef = React.useRef(550);
-  const quickSettingsPopoverRef = React.useRef<HTMLDivElement | null>(null);
-
   const audioStreamRef = React.useRef<MediaStream | null>(null);
   const audioContextRef = React.useRef<AudioContext | null>(null);
   const analyserRef = React.useRef<AnalyserNode | null>(null);
@@ -4366,16 +4351,6 @@ export function App() {
     setQuickPersona(settings.persona || NO_PERSONA_ID);
   }, []);
 
-  const saveQuickSettingsPartial = React.useCallback(
-    (partial: Partial<OpenRouterSettings>) => {
-      const current = loadOpenRouterSettings();
-      saveOpenRouterSettings({ ...current, ...partial });
-      hydrateQuickSettingsFromStorage();
-      setQuickSettingsStatus("Quick settings auto-saved.");
-    },
-    [hydrateQuickSettingsFromStorage]
-  );
-
   const applyQuickMcpConfigContent = React.useCallback((content: string) => {
     setQuickMcpConfigRaw(content);
     const parsed = parseMcpConfig(content);
@@ -4413,50 +4388,6 @@ export function App() {
       setQuickMcpLoading(false);
     }
   }, [applyQuickMcpConfigContent]);
-
-  const toggleQuickMcpServer = React.useCallback(
-    async (serverName: string, enabled: boolean) => {
-      if (!quickMcpConfig) {
-        setQuickMcpError("Cannot toggle MCP server: config is not loaded.");
-        return;
-      }
-      setQuickMcpSavingServer(serverName);
-      setQuickMcpStatus(`${enabled ? "Enabling" : "Disabling"} "${serverName}"...`);
-      setQuickMcpError("");
-      try {
-        const nextConfig = setServerEnabled(quickMcpConfig, serverName, enabled);
-        const nextContent = stringifyMcpConfig(nextConfig);
-        const response = await invoke<McpConfigResponse>("save_mcp_config", {
-          content: nextContent,
-        });
-        const savedContent = response.content || nextContent;
-        const parsed = parseMcpConfig(savedContent);
-        if (!parsed.config || parsed.error) {
-          throw new Error(parsed.error ?? "Saved MCP config is invalid.");
-        }
-        setQuickMcpConfigRaw(savedContent);
-        setQuickMcpConfig(parsed.config);
-        setQuickMcpServers(summarizeMcpServers(parsed.config));
-        setQuickMcpStatus(
-          `${enabled ? "Enabled" : "Disabled"} MCP server "${serverName}".`
-        );
-      } catch (error) {
-        setQuickMcpStatus(`Failed to update MCP server "${serverName}".`);
-        setQuickMcpError(String(error));
-      } finally {
-        setQuickMcpSavingServer(null);
-      }
-    },
-    [quickMcpConfig]
-  );
-
-  const openFullSettingsWindow = React.useCallback(async () => {
-    try {
-      await invoke("open_settings_window_command");
-    } catch (error) {
-      setQuickMcpError(`Failed to open settings window: ${String(error)}`);
-    }
-  }, []);
 
   React.useEffect(() => {
     updateLlmTag();
@@ -4499,33 +4430,6 @@ export function App() {
       window.removeEventListener("focus", handleFocus);
     };
   }, [hydrateQuickSettingsFromStorage, loadQuickMcpConfig]);
-
-  React.useEffect(() => {
-    if (!quickSettingsOpen) return;
-    hydrateQuickSettingsFromStorage();
-    void loadQuickMcpConfig();
-  }, [hydrateQuickSettingsFromStorage, loadQuickMcpConfig, quickSettingsOpen]);
-
-  React.useEffect(() => {
-    if (!quickSettingsOpen) return;
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (quickSettingsPopoverRef.current?.contains(target)) return;
-      setQuickSettingsOpen(false);
-    };
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setQuickSettingsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [quickSettingsOpen]);
 
   React.useEffect(() => {
     if (!mockTranscriptSelection || mockTranscript) return;
@@ -4799,9 +4703,6 @@ export function App() {
       })
       .join("\n\n");
   }, [chapters]);
-  const quickPersonaDescription =
-    PERSONAS.find((persona) => persona.id === quickPersona)?.description ??
-    "No persona active. Deep dives use default behavior.";
   const topicShiftBadgeLabel = React.useMemo(() => {
     const level = TOPIC_SHIFT_SENSITIVITY_LEVELS.find(
       (entry) => entry.value === quickTopicShiftSensitivity
@@ -5137,200 +5038,6 @@ export function App() {
                   <RefreshCw className="h-4 w-4" />
                   <span className="sr-only">Clear session</span>
                 </Button>
-              </div>
-              <div ref={quickSettingsPopoverRef} className="relative flex flex-col items-center gap-1.5">
-                <Button
-                  variant={quickSettingsOpen ? "secondary" : "outline"}
-                  size="icon"
-                  onClick={() => setQuickSettingsOpen((previous) => !previous)}
-                  title="Quick settings"
-                >
-                  <SlidersHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Quick settings</span>
-                </Button>
-                {quickSettingsOpen && (
-                  <div className="absolute right-0 top-11 z-50 w-[min(92vw,26rem)] max-h-[75vh] space-y-4 overflow-y-auto rounded-xl border border-border/70 bg-background/95 p-4 shadow-xl backdrop-blur">
-                    <section className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                          Quick Settings
-                        </p>
-                        {quickSettingsStatus && (
-                          <span className="text-[11px] text-muted-foreground">
-                            {quickSettingsStatus}
-                          </span>
-                        )}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label
-                          htmlFor="quick-topic-shift-sensitivity"
-                          className="text-xs font-medium text-foreground"
-                        >
-                          Topic shift sensitivity
-                        </label>
-                        <select
-                          id="quick-topic-shift-sensitivity"
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                          value={quickTopicShiftSensitivity}
-                          onChange={(event) => {
-                            const next = Number(event.target.value);
-                            setQuickTopicShiftSensitivity(next);
-                            saveQuickSettingsPartial({ topicShiftSensitivity: next });
-                          }}
-                        >
-                          {TOPIC_SHIFT_SENSITIVITY_LEVELS.map((level) => (
-                            <option key={level.value} value={level.value}>
-                              {level.label}
-                            </option>
-                          ))}
-                        </select>
-                        <p className="text-[11px] text-muted-foreground">
-                          {describeTopicShiftSensitivity(quickTopicShiftSensitivity)}
-                        </p>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label
-                          htmlFor="quick-evaluation-delay"
-                          className="text-xs font-medium text-foreground"
-                        >
-                          Evaluation delay
-                        </label>
-                        <select
-                          id="quick-evaluation-delay"
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                          value={quickEvaluationDelayMs}
-                          onChange={(event) => {
-                            const next = Number(event.target.value);
-                            setQuickEvaluationDelayMs(next);
-                            saveQuickSettingsPartial({ evaluationDelayMs: next });
-                          }}
-                        >
-                          {EVALUATION_DELAY_LEVELS.map((level) => (
-                            <option key={level.value} value={level.value}>
-                              {level.label}
-                            </option>
-                          ))}
-                        </select>
-                        <p className="text-[11px] text-muted-foreground">
-                          {describeEvaluationDelay(quickEvaluationDelayMs)}
-                        </p>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label
-                          htmlFor="quick-persona-select"
-                          className="text-xs font-medium text-foreground"
-                        >
-                          Co-host persona
-                        </label>
-                        <select
-                          id="quick-persona-select"
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                          value={quickPersona}
-                          onChange={(event) => {
-                            const next = event.target.value;
-                            setQuickPersona(next);
-                            saveQuickSettingsPartial({ persona: next });
-                          }}
-                        >
-                          <option value={NO_PERSONA_ID}>None</option>
-                          {PERSONAS.map((persona) => (
-                            <option key={persona.id} value={persona.id}>
-                              {persona.name}
-                            </option>
-                          ))}
-                        </select>
-                        <p className="text-[11px] text-muted-foreground">
-                          {quickPersonaDescription}
-                        </p>
-                      </div>
-                    </section>
-
-                    <section className="space-y-2 border-t border-border/60 pt-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                          MCP Servers
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-[11px]"
-                            onClick={() => void loadQuickMcpConfig()}
-                            disabled={quickMcpLoading}
-                          >
-                            {quickMcpLoading ? "Loading..." : "Reload"}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2 text-[11px]"
-                            onClick={() => {
-                              void openFullSettingsWindow();
-                            }}
-                          >
-                            Open Settings
-                          </Button>
-                        </div>
-                      </div>
-                      {quickMcpStatus && (
-                        <p className="text-[11px] text-muted-foreground">{quickMcpStatus}</p>
-                      )}
-                      {quickMcpError && (
-                        <p className="text-[11px] text-destructive">{quickMcpError}</p>
-                      )}
-                      {quickMcpConfigRaw && (
-                        <p className="text-[10px] text-muted-foreground">
-                          Config bytes: {quickMcpConfigRaw.length}
-                        </p>
-                      )}
-                      {!quickMcpError && quickMcpServers.length === 0 && !quickMcpLoading && (
-                        <p className="text-[11px] text-muted-foreground">
-                          No MCP servers configured.
-                        </p>
-                      )}
-                      <div className="space-y-2">
-                        {quickMcpServers.map((server) => (
-                          <div
-                            key={server.name}
-                            className="rounded-md border border-border/60 bg-muted/20 p-2"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0 space-y-1">
-                                <p className="truncate text-xs font-semibold text-foreground">
-                                  {server.name}
-                                </p>
-                                <p className="text-[11px] text-muted-foreground">
-                                  {server.transportLabel}: {server.detail}
-                                </p>
-                                {server.issue && (
-                                  <p className="text-[11px] text-destructive">{server.issue}</p>
-                                )}
-                              </div>
-                              <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                <Checkbox
-                                  checked={server.enabled}
-                                  disabled={
-                                    quickMcpLoading ||
-                                    quickMcpSavingServer === server.name ||
-                                    !server.canToggle ||
-                                    Boolean(quickMcpError)
-                                  }
-                                  onChange={(event) => {
-                                    void toggleQuickMcpServer(
-                                      server.name,
-                                      event.target.checked
-                                    );
-                                  }}
-                                />
-                                {server.enabled ? "On" : "Off"}
-                              </label>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  </div>
-                )}
               </div>
               {devModeEnabled && devTranscriptAvailable && !mockTranscriptMode && (
                 <div className="flex flex-col items-center gap-1">

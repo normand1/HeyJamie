@@ -191,10 +191,38 @@ npm run tauri build -- --debug --bundles app
 open "src-tauri/target/debug/bundle/macos/HeyJamie.app"
 ```
 
+## Build Bundled App (Linux)
+
+```bash
+nvm use
+npm run tauri build -- --debug --bundles deb   # or appimage
+```
+
+### Linux Prerequisites
+
+Whisper build dependencies (Debian/Ubuntu):
+```bash
+sudo apt install build-essential cmake git
+```
+
+Fedora:
+```bash
+sudo dnf install gcc gcc-c++ cmake git
+```
+
+Optional — Chrome window focus support:
+```bash
+sudo apt install xdotool
+```
+
 ## Permissions (macOS)
 
 - `NSMicrophoneUsageDescription`
 - `NSSpeechRecognitionUsageDescription`
+
+## Permissions (Linux)
+
+- Mic access uses PipeWire/PulseAudio — no plist equivalent needed.
 
 ## Ralph Autonomous Loop
 

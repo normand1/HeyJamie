@@ -29,6 +29,11 @@
     "macOS": {
       "infoPlist": "Info.plist"
     },
+    "linux": {
+      "deb": {
+        "depends": ["libc6", "libwebkit2gtk-4.1-0", "libjavascriptcoregtk-4.1-0"]
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

@@ -898,7 +898,17 @@ fn focus_chrome_window() -> Result<(), String> {
     run_browser_launcher("open", &["-a", "Google Chrome"])
 }
 
-#[cfg(all(desktop, not(target_os = "macos")))]
+#[cfg(all(desktop, target_os = "linux"))]
+#[tauri::command]
+fn focus_chrome_window() -> Result<(), String> {
+    // Best-effort: try xdotool, silently succeed if unavailable
+    let _ = std::process::Command::new("xdotool")
+        .args(["search", "--name", "Google Chrome", "windowactivate"])
+        .output();
+    Ok(())
+}
+
+#[cfg(all(desktop, not(any(target_os = "macos", target_os = "linux"))))]
 #[tauri::command]
 fn focus_chrome_window() -> Result<(), String> {
     Ok(())

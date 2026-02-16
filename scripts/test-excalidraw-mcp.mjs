@@ -35,7 +35,9 @@ import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
 import { join as pathJoin } from "node:path";
 const DEFAULT_MCP_CONFIG_PATH = pathJoin(
   process.env.HOME,
-  "Library/Application Support/com.heyjamie.app/mcp.json"
+  process.platform === "darwin"
+    ? "Library/Application Support/com.heyjamie.app/mcp.json"
+    : ".config/com.heyjamie.app/mcp.json"
 );
 
 const DEFAULT_EXCALIDRAW_URL = "https://excalidraw-mcp-app.vercel.app/mcp";

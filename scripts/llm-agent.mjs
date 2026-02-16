@@ -560,17 +560,26 @@ async function isPortReachable(port) {
 }
 
 /**
- * Find the Chrome binary on macOS.
+ * Find the Chrome binary on the current platform.
  */
 function findChromeBinary() {
   const envBinary = (process.env.HEYJAMIE_CHROME_BINARY || "").trim();
   if (envBinary) return envBinary;
 
-  const candidates = [
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-  ];
+  const candidates =
+    process.platform === "darwin"
+      ? [
+          "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+          "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
+          "/Applications/Chromium.app/Contents/MacOS/Chromium",
+        ]
+      : [
+          "/usr/bin/google-chrome-stable",
+          "/usr/bin/google-chrome",
+          "/usr/bin/chromium-browser",
+          "/usr/bin/chromium",
+          "/snap/bin/chromium",
+        ];
   for (const candidate of candidates) {
     if (fsSync.existsSync(candidate)) return candidate;
   }
